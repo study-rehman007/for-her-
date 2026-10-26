@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FBF3E6">
+<title>For You, My Shadowself</title>
+
+<!--
+  ============================================================
+  HOW TO MAKE THE FORM SEND TO *YOUR* EMAIL  (2 minutes, free)
+  ------------------------------------------------------------
+  1. Scroll down to the  <form id="love-form" ...>  tag near
+     the bottom of this file.
+  2. Replace  your-email-here@example.com  in the action="..."
+     with your real email address. (Only place you must edit.)
+  3. Host the site (Netlify Drop / tiiny.host / GitHub Pages),
+     open it once yourself and submit a test message.
+  4. FormSubmit.co will send a "Activate your form" email to
+     your inbox -> click Activate. Done!
+     After that, every letter she sends lands in your inbox.
+  ============================================================
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ============ base ============ */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --cream:#FBF3E6; --cream2:#F5E7D0; --paper:#FFFDF6;
+  --ink:#4A3626; --brown:#6B4A34; --soft:#8B6547;
+  --tan:#C9A87E; --caramel:#B08054; --deep:#7C4A2A;
+  --shadow:0 14px 38px rgba(107,74,52,.20);
+}
+html{scroll-behavior:smooth}
+html,body{height:100%}
+body{
+  font-family:'Quicksand',system-ui,-apple-system,sans-serif;
+  background:
+    radial-gradient(1100px 620px at 85% -10%, #F7EAD6 0%, transparent 60%),
+    radial-gradient(900px 520px at -10% 110%, #F1E0C4 0%, transparent 55%),
+    var(--cream);
+  color:var(--ink);
+  overflow-x:hidden;
+  min-height:100vh; min-height:100svh;
+  touch-action:manipulation;
+}
+button{font-family:inherit;cursor:pointer;touch-action:manipulation}
+
+/* ============ heart shape (reused everywhere) ============ */
+.h{
+  position:relative; display:inline-block;
+  width:var(--s,16px); height:var(--s,16px);
+  background:var(--c,#C9A87E);
+  transform:rotate(45deg);
+}
+.h::before,.h::after{
+  content:""; position:absolute; border-radius:50%;
+  width:var(--s,16px); height:var(--s,16px); background:var(--c,#C9A87E);
+}
+.h::before{top:calc(var(--s,16px) / -2); left:0}
+.h::after{top:0; left:calc(var(--s,16px) / -2)}
+
+/* ============ floating hearts background ============ */
+#hearts-bg{position:fixed; inset:0; overflow:hidden; pointer-events:none; z-index:0}
+.float-h{
+  position:absolute; bottom:-40px;
+  animation:floatUp linear infinite;
+  opacity:.8;
+}
+@keyframes floatUp{
+  0%   {transform:translate3d(0,0,0) rotate(0deg)}
+  50%  {transform:translate3d(16px,-56vh,0) rotate(9deg)}
+  100% {transform:translate3d(-10px,-114vh,0) rotate(-7deg)}
+}
+
+/* ============ scenes ============ */
+.scene{
+  display:none; position:relative; z-index:1;
+  min-height:100vh; min-height:100svh;
+  flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:34px 20px 56px;
+}
+.scene.active{display:flex; animation:sceneIn .7s ease both}
+@keyframes sceneIn{from{opacity:0; transform:translateY(18px)} to{opacity:1; transform:none}}
+
+/* ============ scene 1 : landing ============ */
+.landing-title{
+  font-family:'Caveat',cursive; font-weight:700;
+  font-size:clamp(2.1rem, 8.4vw, 3.4rem);
+  line-height:1.15; color:var(--brown);
+  animation:titleIn 1s ease .15s both;
+  text-shadow:0 2px 0 rgba(255,255,255,.6);
+}
+.landing-title .accent{color:var(--caramel); position:relative; white-space:nowrap}
+@keyframes titleIn{from{opacity:0; transform:translateY(-16px) scale(.96)} to{opacity:1; transform:none}}
+.landing-sub{
+  margin-top:10px; color:var(--soft); font-size:.95rem; font-weight:600;
+  letter-spacing:.4px; animation:titleIn 1s ease .5s both;
+}
+.envelope-stage{
+  margin:44px 0 18px; perspective:900px;
+  animation:titleIn 1s ease .8s both;
+}
+.envelope{
+  position:relative; display:block;
+  width:min(80vw,300px); aspect-ratio:10/7;
+  background:transparent; border:none; padding:0;
+  animation:wobble 2.6s ease-in-out infinite;
+  filter:drop-shadow(0 16px 22px rgba(107,74,52,.28));
+}
+@keyframes wobble{
+  0%,100%{transform:rotate(0deg) scale(1)}
+  30%{transform:rotate(-2.2deg) scale(1.02)}
+  60%{transform:rotate(2.2deg) scale(1.02)}
+}
+.envelope:active{transform:scale(.97)}
+.env-back{position:absolute; inset:0; background:var(--caramel); border-radius:10px; z-index:1}
+.env-letter{
+  position:absolute; left:6%; right:6%; top:7%; bottom:12%;
+  background:var(--paper); border-radius:6px; z-index:2;
+  display:flex; align-items:center; justify-content:center;
+  transition:transform .9s cubic-bezier(.3,.9,.3,1.05) .25s;
+  box-shadow:0 2px 6px rgba(74,54,38,.15);
+}
+.env-letter::before,.env-letter::after{
+  content:""; position:absolute; left:12%; right:12%; height:2px;
+  background:var(--cream2); border-radius:2px;
+}
+.env-letter::before{top:34%}
+.env-letter::after{top:58%}
+.env-letter .mini-heart{position:absolute; top:-12px; left:50%; margin-left:-11px;
+  animation:beat 1.5s ease-in-out infinite}
+.env-pocket{
+  position:absolute; inset:0; z-index:3; border-radius:10px;
+  background:linear-gradient(180deg,#C79A6B 0%, #B9885A 100%);
+  clip-path:polygon(0 0, 50% 52%, 100% 0, 100% 100%, 0 100%);
+}
+.env-flap{
+  position:absolute; left:0; right:0; top:0; height:56%; z-index:4;
+  background:linear-gradient(180deg,#B98A5E 0%, #A9794F 100%);
+  clip-path:polygon(0 0, 100% 0, 50% 100%);
+  border-radius:10px 10px 0 0;
+  transform-origin:top center;
+  transition:transform .8s cubic-bezier(.4,0,.3,1), opacity .5s ease .45s;
+}
+.env-seal{
+  position:absolute; left:50%; top:47%; z-index:5;
+  transform:translate(-50%,-50%) rotate(-45deg);
+  width:46px; height:46px; border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #96522F, #6E3A1F);
+  box-shadow:0 4px 10px rgba(74,54,38,.4);
+  display:flex; align-items:center; justify-content:center;
+  transition:opacity .3s ease, transform .3s ease;
+}
+.env-seal .h{--s:18px; --c:#F3E2C7; transform:rotate(45deg); margin-top:2px}
+.envelope.open{animation:none}
+.envelope.open .env-flap{transform:rotateX(-178deg); opacity:.55; z-index:1}
+.envelope.open .env-seal{opacity:0; transform:translate(-50%,-50%) rotate(-45deg) scale(.4)}
+.envelope.open .env-letter{transform:translateY(-52%)}
+.hint{
+  color:var(--soft); font-weight:600; font-size:.95rem;
+  animation:pulseHint 1.8s ease-in-out infinite;
+}
+@keyframes pulseHint{0%,100%{opacity:.55} 50%{opacity:1}}
+
+/* ============ scene 2 : letter ============ */
+.letter-paper{
+  position:relative; max-width:560px; width:100%;
+  background:
+    repeating-linear-gradient(180deg, transparent 0 34px, rgba(176,128,84,.10) 34px 35px),
+    var(--paper);
+  border:1px solid #E9D8BC; border-radius:14px;
+  box-shadow:var(--shadow);
+  padding:clamp(26px,6vw,44px) clamp(20px,5.5vw,40px) clamp(30px,6vw,46px);
+  transform:rotate(-1.2deg);
+  text-align:left;
+}
+.letter-lines{font-family:'Caveat',cursive; font-size:clamp(1.45rem,5.4vw,1.8rem);
+  line-height:1.45; color:#553D2B; font-weight:600}
+.l-line{opacity:0; transform:translateY(16px)}
+.l-line.go{animation:lineIn .9s ease forwards}
+@keyframes lineIn{to{opacity:1; transform:none}}
+.l-line.salut{font-size:clamp(1.7rem,6.4vw,2.15rem); color:var(--deep); margin-bottom:6px}
+.l-line.sig{margin-top:18px; text-align:right; color:var(--caramel)}
+.letter-heart-row{display:flex; gap:14px; justify-content:flex-end; margin-top:10px; opacity:0}
+.letter-heart-row.go{animation:lineIn .9s ease forwards}
+.letter-heart-row .h{animation:beat 1.6s ease-in-out infinite}
+@keyframes beat{0%,100%{transform:rotate(45deg) scale(1)} 25%{transform:rotate(45deg) scale(1.18)} 45%{transform:rotate(45deg) scale(1)} 65%{transform:rotate(45deg) scale(1.1)}}
+@keyframes pulseBtn{0%,100%{transform:scale(1)} 25%{transform:scale(1.1)} 45%{transform:scale(1)} 65%{transform:scale(1.06)}}
+
+/* ============ buttons ============ */
+.btn{
+  display:inline-block; border:none; border-radius:999px;
+  font-weight:700; font-size:1.06rem; letter-spacing:.3px;
+  padding:15px 38px; min-height:52px;
+  transition:transform .25s ease, box-shadow .25s ease, opacity .5s ease;
+}
+.btn-yes{
+  color:#FFF8EC;
+  background:linear-gradient(135deg,#C08B5C 0%, #8B5E3C 100%);
+  box-shadow:0 10px 24px rgba(139,94,60,.38);
+  animation:pulseBtn 1.9s ease-in-out infinite;
+}
+.btn-yes:active{transform:scale(.95)}
+.btn-ghost{
+  background:transparent; border:2px solid var(--tan); color:var(--soft);
+  font-size:1rem; padding:13px 30px;
+}
+.reveal{opacity:0; transform:translateY(14px)}
+.reveal.go{animation:lineIn .8s ease forwards}
+
+/* ============ scene 3 : questions ============ */
+.q-card{
+  max-width:520px; width:100%;
+  background:var(--paper); border:1px solid #E9D8BC; border-radius:22px;
+  box-shadow:var(--shadow); padding:34px 24px 40px;
+}
+.q-kicker{color:var(--caramel); font-weight:700; font-size:.85rem; letter-spacing:1.6px;
+  text-transform:uppercase}
+.dots{display:flex; gap:9px; justify-content:center; margin:16px 0 22px}
+.dots span{width:9px; height:9px; border-radius:50%; background:#E5D3B8; transition:all .3s}
+.dots span.done{background:var(--tan)}
+.dots span.now{background:var(--caramel); transform:scale(1.45); box-shadow:0 0 0 4px rgba(176,128,84,.18)}
+.q-text{
+  font-family:'Caveat',cursive; font-weight:700;
+  font-size:clamp(1.9rem,7.2vw,2.6rem); color:var(--brown); line-height:1.2;
+  min-height:2.4em; display:flex; align-items:center; justify-content:center;
+}
+.q-text.pop{animation:qPop .55s cubic-bezier(.3,1.4,.5,1) both}
+@keyframes qPop{from{opacity:0; transform:scale(.7) translateY(12px)} to{opacity:1; transform:none}}
+.q-buttons{display:flex; gap:18px; justify-content:center; align-items:center;
+  margin-top:26px; min-height:64px; flex-wrap:wrap}
+.btn-no{
+  background:#F6ECD9; border:2px solid #E2CDA9; color:#A08363;
+  border-radius:999px; font-weight:700; font-size:1rem;
+  padding:13px 30px; min-height:52px;
+}
+.q-tease{margin-top:20px; min-height:1.5em; color:var(--caramel); font-weight:600; font-size:.95rem;
+  font-style:italic; animation:qPop .4s ease both}
+.q-tease:empty{animation:none; opacity:0}
+
+/* ============ scene 4 : feelings form ============ */
+.feelings-card{
+  max-width:560px; width:100%;
+  background:var(--paper); border:1px solid #E9D8BC; border-radius:22px;
+  box-shadow:var(--shadow); padding:clamp(28px,6vw,42px) clamp(20px,5.5vw,38px);
+  text-align:left;
+}
+.feelings-title{font-family:'Caveat',cursive; font-weight:700;
+  font-size:clamp(1.9rem,7vw,2.5rem); color:var(--brown); text-align:center}
+.feelings-sub{text-align:center; color:var(--soft); font-weight:600; font-size:.95rem;
+  margin-top:8px; line-height:1.5}
+.feelings-card label{display:block; margin:26px 0 10px; color:var(--deep);
+  font-weight:700; font-size:.9rem; letter-spacing:.6px}
+textarea{
+  width:100%; border:2px solid #E9D8BC; border-radius:14px;
+  background:
+    repeating-linear-gradient(180deg, transparent 0 27px, rgba(176,128,84,.12) 27px 28px),
+    #FFFEFA;
+  padding:14px 16px; font-family:'Caveat',cursive; font-weight:600;
+  font-size:1.35rem; color:#553D2B; resize:vertical; min-height:170px;
+  outline:none; transition:border-color .25s, box-shadow .25s;
+}
+textarea:focus{border-color:var(--caramel); box-shadow:0 0 0 4px rgba(176,128,84,.15)}
+.send-row{display:flex; justify-content:center; margin-top:26px}
+.tiny-note{text-align:center; color:#B49B7E; font-size:.8rem; font-weight:600; margin-top:16px}
+
+/* ============ scene 5 : thank you ============ */
+.big-heart{--s:64px; --c:#B08054; animation:beat 1.4s ease-in-out infinite; margin-bottom:26px}
+.thanks-title{font-family:'Caveat',cursive; font-weight:700;
+  font-size:clamp(2.2rem,8vw,3.2rem); color:var(--brown)}
+.thanks-sub{margin-top:14px; color:var(--soft); font-weight:600; max-width:340px; line-height:1.6}
+
+/* ============ burst hearts ============ */
+.burst-h{position:fixed; z-index:130; pointer-events:none; animation:burstH 1.05s cubic-bezier(.2,.7,.4,1) forwards}
+@keyframes burstH{
+  from{transform:translate(0,0) rotate(45deg) scale(1); opacity:1}
+  to{transform:translate(var(--tx),var(--ty)) rotate(var(--rot)) scale(.25); opacity:0}
+}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001s !important; transition-duration:.001s !important}
+}
+</style>
+</head>
+<body>
+
+<div id="hearts-bg" aria-hidden="true"></div>
+
+<!-- ================= SCENE 1 : SEALED ENVELOPE ================= -->
+<section class="scene active" id="scene-landing">
+  <h1 class="landing-title">You are on my mind <span class="accent">24/7</span><br>so i made this for you</h1>
+  <p class="landing-sub">a little something, just for you...</p>
+
+  <div class="envelope-stage">
+    <button class="envelope" id="envelope" aria-label="Open the letter">
+      <span class="env-back"></span>
+      <span class="env-letter"><span class="h mini-heart" style="--s:22px;--c:#B08054"></span></span>
+      <span class="env-pocket"></span>
+      <span class="env-flap"></span>
+      <span class="env-seal"><span class="h"></span></span>
+    </button>
+  </div>
+
+  <p class="hint">tap the envelope to open it</p>
+</section>
+
+<!-- ================= SCENE 2 : THE LETTER ================= -->
+<section class="scene" id="scene-letter">
+  <div class="letter-paper">
+    <div class="letter-lines">
+      <p class="l-line salut">Hey my shadowself &lt;3</p>
+      <p class="l-line">I just wanna let you know that I love you so so much.</p>
+      <p class="l-line">Oh my God, i am crying while making this.....</p>
+      <p class="l-line">I know i mess up sometimes. i want to say sorry for the pain I have caused.</p>
+      <p class="l-line">I know things are hard right now, but we will get through this.</p>
+      <p class="l-line">I know you must be shocked right now while reading this, but yeah... I am afraid of losing you.</p>
+      <p class="l-line">I'll hold your hand tightly this time, and will never let you go.</p>
+      <p class="l-line sig">— always yours</p>
+    </div>
+    <div class="letter-heart-row" id="letter-hearts">
+      <span class="h" style="--s:12px;--c:#C9A87E"></span>
+      <span class="h" style="--s:18px;--c:#B08054"></span>
+      <span class="h" style="--s:12px;--c:#C9A87E"></span>
+    </div>
+  </div>
+  <button class="btn btn-ghost reveal" id="to-questions" style="margin-top:34px">keep going...</button>
+</section>
+
+<!-- ================= SCENE 3 : QUESTIONS ================= -->
+<section class="scene" id="scene-questions">
+  <div class="q-card">
+    <p class="q-kicker">answer honestly hehe</p>
+    <div class="dots" id="dots">
+      <span class="now"></span><span></span><span></span><span></span>
+    </div>
+    <h2 class="q-text" id="q-text"></h2>
+    <div class="q-buttons">
+      <button class="btn btn-yes" id="btn-yes"></button>
+      <button class="btn btn-no" id="btn-no"></button>
+    </div>
+    <p class="q-tease" id="q-tease"></p>
+  </div>
+</section>
+
+<!-- ================= SCENE 4 : HER FEELINGS -> YOUR EMAIL ================= -->
+<section class="scene" id="scene-final">
+  <form class="feelings-card" id="love-form"
+        action="https://formsubmit.co/your-email-here@example.com"
+        method="POST">
+    <h2 class="feelings-title">Now it's your turn...</h2>
+    <p class="feelings-sub">tell me everything you're feeling right now.<br>i'll read every single word, i promise.</p>
+
+    <!-- hidden fields: FormSubmit.co options -->
+    <input type="hidden" name="_subject" value="A letter from your shadowself">
+    <input type="hidden" name="_template" value="table">
+    <input type="hidden" name="_captcha" value="false">
+    <input type="hidden" name="_next" id="next-field" value="">
+    <input type="hidden" name="her_answers" id="answers-field" value="">
+
+    <label for="her-letter">your heart, in your own words</label>
+    <textarea id="her-letter" name="her_letter" required
+      placeholder="pour it all out here, my love..."></textarea>
+
+    <div class="send-row">
+      <button class="btn btn-yes" type="submit" id="send-btn">Send it with all my love</button>
+    </div>
+    <p class="tiny-note">this goes straight to him. no one else. ever.</p>
+  </form>
+</section>
+
+<!-- ================= SCENE 5 : THANK YOU (after sending) ================= -->
+<section class="scene" id="scene-thanks">
+  <span class="h big-heart"></span>
+  <h2 class="thanks-title">Delivered.</h2>
+  <p class="thanks-sub">I love you, today, tomorrow, always.<br>You just made me the happiest person alive.</p>
+</section>
+
+<script>
+(function(){
+  "use strict";
+
+  /* =====================================================================
+     CONFIG (optional to touch)
+     - The ONLY thing you must edit is the form action above (your email).
+     - Feel free to change the questions / tease lines below.
+  ===================================================================== */
+
+  var PALETTE = ['#C9A87E','#B08054','#D9BE97','#A67B5B','#E3CDA9','#B98A5E'];
+
+  var QUESTIONS = [
+    { text: "Do you love me?",
+      yes: "Yes, I do",
+      no:  "No" },
+    { text: "Do you miss me every single day?",
+      yes: "Yes, every second",
+      no:  "Nope" },
+    { text: "Will you stay by my side forever?",
+      yes: "Forever & always",
+      no:  "No" },
+    { text: "Will you marry me?",
+      yes: "Yes, a thousand times!",
+      no:  "No",
+      final: true }
+  ];
+
+  var TEASES = [
+    "hehe... wrong button",
+    "the No button is being shy today",
+    "nope, that one doesn't work anymore",
+    "you can't catch it, keep trying...",
+    "okay okay... it's gone. only Yes remains"
+  ];
+
+  /* ---------------- scene manager ---------------- */
+  function showScene(id){
+    var scenes = document.querySelectorAll('.scene');
+    for (var i = 0; i < scenes.length; i++) scenes[i].classList.remove('active');
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  /* ---------------- floating hearts background ---------------- */
+  var bg = document.getElementById('hearts-bg');
+  function spawnBgHeart(){
+    var wrap = document.createElement('span');
+    wrap.className = 'float-h';
+    wrap.style.left = (Math.random() * 100) + 'vw';
+    wrap.style.animationDuration = (10 + Math.random() * 10) + 's';
+    wrap.style.animationDelay = (-Math.random() * 14) + 's';
+    var h = document.createElement('span');
+    h.className = 'h';
+    var size = 7 + Math.random() * 15;
+    h.style.setProperty('--s', size.toFixed(1) + 'px');
+    h.style.setProperty('--c', PALETTE[Math.floor(Math.random() * PALETTE.length)]);
+    h.style.opacity = (0.14 + Math.random() * 0.22).toFixed(2);
+    wrap.appendChild(h);
+    bg.appendChild(wrap);
+    setTimeout(function(){ if (wrap.parentNode) wrap.parentNode.removeChild(wrap); }, 30000);
+  }
+  for (var i = 0; i < 14; i++) spawnBgHeart();
+  setInterval(spawnBgHeart, 1500);
+
+  /* ---------------- heart burst ---------------- */
+  function burst(x, y, count, spread){
+    count = count || 16; spread = spread || 1;
+    for (var i = 0; i < count; i++){
+      var w = document.createElement('span');
+      w.className = 'h burst-h';
+      var size = 8 + Math.random() * 14;
+      w.style.setProperty('--s', size.toFixed(1) + 'px');
+      w.style.setProperty('--c', PALETTE[Math.floor(Math.random() * PALETTE.length)]);
+      var ang = Math.random() * Math.PI * 2;
+      var dist = (70 + Math.random() * 130) * spread;
+      w.style.setProperty('--tx', (Math.cos(ang) * dist).toFixed(0) + 'px');
+      w.style.setProperty('--ty', (Math.sin(ang) * dist - 50).toFixed(0) + 'px');
+      w.style.setProperty('--rot', (Math.random() * 260 - 130).toFixed(0) + 'deg');
+      w.style.left = x + 'px';
+      w.style.top = y + 'px';
+      document.body.appendChild(w);
+      (function(el){ setTimeout(function(){ if (el.parentNode) el.parentNode.removeChild(el); }, 1200); })(w);
+    }
+  }
+  function centerOf(el){
+    var r = el.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+  }
+
+  /* ---------------- scene 1 : envelope ---------------- */
+  var envelope = document.getElementById('envelope');
+  var opened = false;
+  envelope.addEventListener('click', function(){
+    if (opened) return;
+    opened = true;
+    envelope.classList.add('open');
+    var c = centerOf(envelope);
+    burst(c.x, c.y, 14, 0.9);
+    setTimeout(function(){ showScene('scene-letter'); startLetter(); }, 1450);
+  });
+
+  /* ---------------- scene 2 : letter ---------------- */
+  function startLetter(){
+    var lines = document.querySelectorAll('#scene-letter .l-line');
+    for (var i = 0; i < lines.length; i++){
+      (function(p, idx){
+        p.style.animationDelay = (0.35 + idx * 0.85) + 's';
+        setTimeout(function(){ p.classList.add('go'); }, 30);
+      })(lines[i], i);
+    }
+    var total = 0.35 + lines.length * 0.85;
+    var hearts = document.getElementById('letter-hearts');
+    hearts.style.animationDelay = total + 's';
+    setTimeout(function(){ hearts.classList.add('go'); }, 30);
+    var btn = document.getElementById('to-questions');
+    btn.style.animationDelay = (total + 0.45) + 's';
+    setTimeout(function(){ btn.classList.add('go'); }, 30);
+  }
+  document.getElementById('to-questions').addEventListener('click', function(){
+    showScene('scene-questions');
+    renderQuestion();
+  });
+
+  /* ---------------- scene 3 : questions ---------------- */
+  var qIndex = 0;
+  var attempts = 0;
+  var noTapsTotal = 0;
+  var answers = {};
+
+  var qText   = document.getElementById('q-text');
+  var yesBtn  = document.getElementById('btn-yes');
+  var noBtn   = document.getElementById('btn-no');
+  var teaseEl = document.getElementById('q-tease');
+  var dots    = document.getElementById('dots').children;
+
+  function renderQuestion(){
+    attempts = 0;
+    var q = QUESTIONS[qIndex];
+
+    /* reset No button fully */
+    noBtn.style.cssText = "";
+    noBtn.style.display = "";
+    noBtn.disabled = false;
+    noBtn.textContent = q.no;
+    yesBtn.textContent = q.yes;
+    teaseEl.textContent = "";
+
+    for (var i = 0; i < dots.length; i++){
+      dots[i].className = i < qIndex ? 'done' : (i === qIndex ? 'now' : '');
+    }
+
+    qText.textContent = q.text;
+    qText.classList.remove('pop');
+    void qText.offsetWidth;
+    qText.classList.add('pop');
+
+    if (q.final) yesBtn.style.animationDuration = '1.2s';
+  }
+
+  function dodgeNo(){
+    attempts++;
+    noTapsTotal++;
+    teaseEl.textContent = "";
+    void teaseEl.offsetWidth;
+    teaseEl.textContent = TEASES[Math.min(attempts - 1, TEASES.length - 1)];
+
+    if (attempts === 1){
+      var r = noBtn.getBoundingClientRect();
+      noBtn.style.position = 'fixed';
+      noBtn.style.left = r.left + 'px';
+      noBtn.style.top = r.top + 'px';
+      noBtn.style.margin = '0';
+      noBtn.style.zIndex = '90';
+    }
+
+    var maxAttempts = QUESTIONS[qIndex].final ? 2 : 4;
+    var scale = Math.max(1 - attempts * 0.14, 0.5);
+    var op    = Math.max(1 - attempts * 0.18, 0.22);
+
+    var pad = 14;
+    var w = noBtn.offsetWidth, h = noBtn.offsetHeight;
+    var maxX = Math.max(window.innerWidth - w - pad, pad);
+    var maxY = Math.max(window.innerHeight - h - pad, pad);
+    var x = pad + Math.random() * (maxX - pad);
+    var y = pad + Math.random() * (maxY * 0.72);
+
+    noBtn.style.transition = 'left .32s cubic-bezier(.2,.8,.3,1.2), top .32s cubic-bezier(.2,.8,.3,1.2), transform .32s, opacity .32s';
+    requestAnimationFrame(function(){
+      noBtn.style.left = x + 'px';
+      noBtn.style.top = y + 'px';
+      noBtn.style.transform = 'scale(' + scale + ') rotate(' + (Math.random() * 18 - 9).toFixed(1) + 'deg)';
+      noBtn.style.opacity = op;
+    });
+
+    if (attempts >= maxAttempts){
+      setTimeout(function(){
+        noBtn.style.transition = 'opacity 1.4s ease, transform 1.4s ease';
+        noBtn.style.opacity = '0';
+        noBtn.style.transform = 'scale(.25) rotate(30deg)';
+        setTimeout(function(){
+          noBtn.style.display = 'none';
+          teaseEl.textContent = TEASES[TEASES.length - 1];
+        }, 1450);
+      }, 280);
+    }
+  }
+
+  noBtn.addEventListener('touchstart', function(e){ e.preventDefault(); dodgeNo(); }, { passive:false });
+  noBtn.addEventListener('click', function(e){ e.preventDefault(); dodgeNo(); });
+  if (window.matchMedia && window.matchMedia('(hover:hover)').matches){
+    noBtn.addEventListener('mouseenter', dodgeNo);
+  }
+
+  yesBtn.addEventListener('click', function(){
+    var q = QUESTIONS[qIndex];
+    answers['question_' + (qIndex + 1)] = q.text + ' -> ' + q.yes;
+    var c = centerOf(yesBtn);
+    burst(c.x, c.y, q.final ? 34 : 14, q.final ? 1.5 : 0.8);
+    if (q.final){
+      setTimeout(function(){ showScene('scene-final'); }, 1300);
+    } else {
+      qIndex++;
+      setTimeout(renderQuestion, 480);
+    }
+  });
+
+  /* ---------------- scene 4 : form ---------------- */
+  var form = document.getElementById('love-form');
+  var nextField = document.getElementById('next-field');
+  var answersField = document.getElementById('answers-field');
+
+  if (location.protocol === 'http:' || location.protocol === 'https:'){
+    nextField.value = location.origin + location.pathname + '?sent=1';
+  }
+
+  form.addEventListener('submit', function(){
+    var parts = [];
+    for (var k in answers){ if (answers.hasOwnProperty(k)) parts.push(answers[k]); }
+    parts.push('she tried to press the No button ' + noTapsTotal + ' time(s) hehe');
+    answersField.value = parts.join(' | ');
+    document.getElementById('send-btn').textContent = 'Sending...';
+  });
+
+  /* ---------------- scene 5 : thank-you after redirect ---------------- */
+  var params = new URLSearchParams(location.search);
+  if (params.get('sent') === '1'){
+    showScene('scene-thanks');
+    setTimeout(function(){
+      burst(window.innerWidth / 2, window.innerHeight * 0.35, 30, 1.6);
+    }, 600);
+    var rainTimer = setInterval(function(){
+      burst(Math.random() * window.innerWidth, window.innerHeight * 0.25, 6, 1.2);
+    }, 900);
+    setTimeout(function(){ clearInterval(rainTimer); }, 8000);
+  }
+})();
+</script>
+</body>
+</html>
